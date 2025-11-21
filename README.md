@@ -1,159 +1,82 @@
 # linkedin-jobsearch-ai-agent  
-Automated LinkedIn job scraper that filters, deduplicates, and emails clean job digests.  
-A simple, configurable, cross-platform job-search automation tool.
-
-This project is designed so **anyone** (even beginners) can run an automated job search using:
-- a single editable config file  
-- a built-in LinkedIn scraper  
-- optional email notifications  
-- optional automation (macOS, Windows, Linux)  
-
-No coding experience required.
+A LinkedIn job-search automation tool that scrapes postings, filters results, removes duplicates, and generates a clean daily or weekly job digest.  
+Fully configurable and cross-platform, suitable for beginners and developers alike.
 
 ---
 
 ## Features
 
-- LinkedIn job scraping with dynamic pagination  
+- LinkedIn job scraping with automatic pagination  
 - Keyword-based title and location filtering  
 - Posting-age extraction (“Posted X days ago”)  
-- Deduplication with persistent job history  
-- Clean Markdown digest output  
-- Optional email notifications (Gmail app password supported)  
-- Configuration-only workflow  
+- Job deduplication using persistent job history  
+- Markdown digest generation  
+- Optional email notifications (Gmail App Password supported)  
+- Configuration-driven design — no code changes needed  
 - Extendable scraper architecture  
-- Cross-platform automation support:
-  - macOS (launchd)
-  - Linux (cron)
-  - Windows (Task Scheduler)
+- Works on macOS, Linux, and Windows  
+- Optional automation via launchd, cron, or Task Scheduler  
 
 ---
 
-## Quick Start
+## Getting Started
 
 ### 1. Clone the repository
 ```
-git clone https://github.com/yourusername/linkedin-jobsearch-ai-agent.git
+git clone https://github.com/tmtleung/linkedin-jobsearch-ai-agent.git
 cd linkedin-jobsearch-ai-agent
 ```
 
-### 2. Create a virtual environment
+### 2. Run the setup script
 
 **macOS / Linux**
 ```
-python3 -m venv .venv
-source .venv/bin/activate
+./setup.sh
 ```
 
-**Windows (PowerShell)**
+If needed:
 ```
-python -m venv .venv
-.\.venv\Scripts\activate
-```
-
-### 3. Install dependencies
-```
-pip install -r requirements.txt
-```
-
-### 4. Copy the example config
-```
-cp config/config.example.json config/config.json
-```
-
-### 5. Edit your config  
-Open:
-
-```
-config/config.json
-```
-
-Set:
-- job title keywords  
-- location keywords  
-- max posting age  
-- email settings (optional)  
-- LinkedIn scraper options  
-
-No code modifications required.
-
----
-
-## Optional: Email Digest Setup (Gmail)
-
-If you want automatic email digests:
-
-1. Enable 2-Factor Authentication in Google  
-2. Create an App Password  
-3. Set it as an environment variable:
-
-**macOS / Linux**
-```
-export EMAIL_PASSWORD="your-16-char-app-password"
+chmod +x setup.sh
+./setup.sh
 ```
 
 **Windows**
 ```
-setx EMAIL_PASSWORD "your-16-char-app-password"
+powershell -ExecutionPolicy Bypass -File setup.ps1
 ```
 
-Enable email in `config.json`:
-```json
-"email_notifications": {
-    "enabled": true
-}
-```
+This will:
+- create a virtual environment  
+- install dependencies  
+- create `config/config.json` from the example template  
 
 ---
 
-## Running the Agent
+## Configuring the Agent
 
-Run manually:
+Your main configuration file lives here:
 
-```
-python run_agent.py
-```
-
-The agent will:
-1. Scrape LinkedIn  
-2. Filter and classify results  
-3. Deduplicate against job history  
-4. Generate a Markdown digest  
-5. Send an email (if enabled)  
-6. Save output into `outputs/latest_digest.md`
-
----
-
-## Automation (macOS, Linux, Windows)
-
-See:
-```
-docs/automation.md
-```
-
-Includes step-by-step instructions for:
-
-- macOS launchd  
-- Linux cron  
-- Windows Task Scheduler  
-
----
-
-## Configuration Overview
-
-### Located in:
 ```
 config/config.json
 ```
 
-### Example structure:
+It defines:
+
+- job title keywords  
+- location keywords  
+- maximum posting age  
+- email notification settings  
+- LinkedIn scraper options  
+
+Example:
+
 ```json
 {
     "scrapers": {
         "linkedin": {
             "enabled": true,
             "keywords": ["Software Engineer", "Data Analyst", "Intern"],
-            "location_keywords": ["Remote", "New York", "USA"],
+            "location_keywords": ["Remote", "United States"],
             "max_pages": 10
         }
     },
@@ -176,15 +99,115 @@ config/config.json
 
 ---
 
+## Customizing Your Location Search
+
+The agent filters jobs by matching keywords inside the job’s location field.  
+This allows users to target specific cities, states, regions, or countries.
+
+### Modify in:
+```
+config/config.json
+```
+
+### Examples
+
+**Search only in San Francisco:**
+```json
+"location_keywords": ["San Francisco"]
+```
+
+**Search multiple cities:**
+```json
+"location_keywords": ["Austin", "Seattle", "Denver"]
+```
+
+**Search a whole country:**
+```json
+"location_keywords": ["United States"]
+```
+
+**Search remote-only roles:**
+```json
+"location_keywords": ["Remote"]
+```
+
+**Remove location filtering entirely:**
+```json
+"location_keywords": []
+```
+
+### Why no radius setting?
+
+LinkedIn’s public job listings do not provide a reliable radius parameter.  
+City/region keyword matching works globally and avoids site-specific behavior.
+
+---
+
+## Running the Agent
+
+After configuring:
+
+```
+python run_agent.py
+```
+
+The agent will:
+1. Scrape LinkedIn  
+2. Filter by title, location, and posting age  
+3. Deduplicate using `history/job_history.json`  
+4. Generate a Markdown digest in `outputs/latest_digest.md`  
+5. Optionally email the digest  
+
+---
+
+## Optional: Email Digest Setup (Gmail)
+
+1. Enable 2-Factor Authentication in Google  
+2. Create an App Password  
+3. Set the password as an environment variable:
+
+**macOS / Linux**
+```
+export EMAIL_PASSWORD="your-app-password"
+```
+
+**Windows (PowerShell)**
+```
+setx EMAIL_PASSWORD "your-app-password"
+```
+
+Enable email:
+```json
+"email_notifications": { "enabled": true }
+```
+
+---
+
+## Automation (macOS, Linux, Windows)
+
+See:
+```
+docs/automation.md
+```
+
+Includes step-by-step instructions for:
+
+- macOS launchd  
+- Linux cron  
+- Windows Task Scheduler  
+
+---
+
 ## Extending the Agent
 
-To add additional job boards, see:
+Scrapers follow a simple interface:
 
 ```
-scrapers/example_scraper_template.py
+scrapers/
+    example_scraper_template.py
 ```
 
-Any scraper must return job dictionaries in this format:
+Each scraper must return jobs in this format:
 
 ```python
 {
@@ -196,6 +219,8 @@ Any scraper must return job dictionaries in this format:
 }
 ```
 
+Adding additional sources (e.g., Indeed, Greenhouse, Lever) is straightforward.
+
 ---
 
 ## Project Structure
@@ -204,55 +229,56 @@ Any scraper must return job dictionaries in this format:
 linkedin-jobsearch-ai-agent/
 │
 ├── config/
-│   ├── config.json               # User-provided settings
-│   └── config.example.json       # Public template
+│   ├── config.example.json
+│   └── config.json
 │
 ├── scrapers/
-│   ├── linkedin_scraper.py       # Fully implemented LinkedIn scraper
+│   ├── linkedin_scraper.py
 │   └── example_scraper_template.py
 │
 ├── processor/
-│   ├── filters.py                # Title/location/date filtering
-│   ├── relevance_classifier.py   # Classification logic
-│   └── dedupe.py                 # Job history deduplication
+│   ├── filters.py
+│   ├── relevance_classifier.py
+│   └── dedupe.py
 │
 ├── output/
-│   ├── formatter.py              # Job line formatting
-│   └── digest_builder.py         # Markdown digest builder
+│   ├── formatter.py
+│   └── digest_builder.py
 │
 ├── emailer/
-│   └── mailer.py                 # Gmail SMTP email sender
+│   └── mailer.py
 │
 ├── utils/
-│   ├── logger.py                 # Unified logger
-│   └── html_utils.py             # HTML parsing helpers
+│   ├── logger.py
+│   └── html_utils.py
 │
 ├── history/
-│   └── .gitkeep                  # Keeps folder versioned
+│   └── .gitkeep
 │
 ├── logs/
-│   └── .gitkeep                  # Keeps folder versioned
+│   └── .gitkeep
 │
 ├── outputs/
-│   └── .gitkeep                  # Digest output folder
+│   └── .gitkeep
 │
 ├── docs/
-│   ├── automation.md             # OS scheduling instructions
-│   └── filters.md                # Filter customization guide
+│   ├── automation.md
+│   └── filters.md
 │
-├── run_agent.py                  # Main entry point
-├── requirements.txt              # Python dependencies
-└── LICENSE                       # MIT license
+├── run_agent.py
+├── setup.sh
+├── setup.ps1
+├── requirements.txt
+└── LICENSE
 ```
 
 ---
 
 ## License
-MIT License.  
-Free for personal and commercial use.
+MIT License.
 
 ---
 
-## Contributing  
-Pull requests welcome.
+## Contributing
+Pull requests are welcome.
 
