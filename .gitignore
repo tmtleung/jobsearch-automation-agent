@@ -1,0 +1,27 @@
+# Virtual env
+.venv/
+venv/
+
+# Logs
+logs/*
+!logs/.gitkeep
+
+# History
+history/*
+!history/.gitkeep
+
+# Outputs
+outputs/*
+!outputs/.gitkeep
+
+# Bytecode
+__pycache__/
+*.pyc
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editors
+.vscode/
+.idea/

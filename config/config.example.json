@@ -1,0 +1,32 @@
+{
+    "scrapers": {
+        "linkedin": {
+            "enabled": true,
+            "keywords": [
+                "Software Engineer",
+                "Data Analyst",
+                "Intern"
+            ],
+            "location_keywords": [
+                "Remote",
+                "New York",
+                "USA"
+            ],
+            "max_pages": 10
+        }
+    },
+    "filters": {
+        "max_post_age_days": 30
+    },
+    "email_notifications": {
+        "enabled": false,
+        "sender": "youremail@example.com",
+        "recipients": [
+            "youremail@example.com"
+        ],
+        "smtp_host": "smtp.gmail.com",
+        "smtp_port": 587,
+        "use_tls": true,
+        "subject_template": "Job Digest — {{date}}"
+    }
+}
